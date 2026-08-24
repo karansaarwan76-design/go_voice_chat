@@ -155,11 +155,11 @@ class MainNavigationScreen extends StatefulWidget {
 }
 
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
-  int _currentIndex = 1; // डिफ़ॉल्ट रूप से Square (Moments) टैब खुलेगा
+  int _currentIndex = 0; // डिफ़ॉल्ट Home टैब
 
   final List<Widget> _screens = [
     const HomeScreen(),
-    const SquareScreen(), // मोमेंट्स और वीडियो स्टेटस फीड
+    const SquareScreen(),
     const MessageScreen(),
     const ProfileScreen(),
   ];
@@ -210,163 +210,26 @@ class HomeScreen extends StatelessWidget {
               MaterialPageRoute(builder: (context) => const VoiceChatRoomScreen()),
             );
           },
-          child: const Text("Join Hind Voice Room (#101)", style: TextStyle(color: Colors.white)),
+          child: const Text("Join 'प्यारे बाबा 2' Room (#101)", style: TextStyle(color: Colors.white)),
         ),
       ),
     );
   }
 }
 
-// टैब 2: स्क्वायर स्क्रीन (Moments, @Mention & 40-sec Short Video Status)
-class SquareScreen extends StatefulWidget {
+// टैब 2: स्क्वायर स्क्रीन (Moments)
+class SquareScreen extends StatelessWidget {
   const SquareScreen({super.key});
-
-  @override
-  State<SquareScreen> createState() => _SquareScreenState();
-}
-
-class _SquareScreenState extends State<SquareScreen> {
-  final List<Map<String, dynamic>> _posts = [
-    {
-      "name": "Alisha",
-      "time": "10 mins ago",
-      "content": "Enjoying a wonderful evening! @Karan check this out ✨",
-      "type": "text",
-    },
-    {
-      "name": "KARAN",
-      "time": "1 hour ago",
-      "content": "New 40-second Haryanvi x Rajasthani DJ Anthem teaser 🎶🔥",
-      "type": "video",
-    },
-  ];
-
-  void _addNewPost() {
-    TextEditingController postController = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E2C),
-        title: const Text("Create Moment / Status", style: TextStyle(color: Colors.white)),
-        content: TextField(
-          controller: postController,
-          style: const TextStyle(color: Colors.white),
-          maxLines: 3,
-          decoration: const InputDecoration(
-            hintText: "What's on your mind? Use @mention...",
-            hintStyle: TextStyle(color: Colors.white38),
-            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
-            focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.pinkAccent)),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel", style: TextStyle(color: Colors.white54)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent),
-            onPressed: () {
-              if (postController.text.trim().isNotEmpty) {
-                setState(() {
-                  _posts.insert(0, {
-                    "name": "KARAN",
-                    "time": "Just now",
-                    "content": postController.text.trim(),
-                    "type": "text",
-                  });
-                });
-                Navigator.pop(context);
-              }
-            },
-            child: const Text("Post", style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Square Moments & Status"),
+        title: const Text("Square Moments"),
         backgroundColor: const Color(0xFF1A1A2E),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add_box, color: Colors.pinkAccent),
-            onPressed: _addNewPost,
-            tooltip: "Upload Status / Moment",
-          ),
-        ],
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(12),
-        itemCount: _posts.length,
-        itemBuilder: (context, index) {
-          final post = _posts[index];
-          return Card(
-            color: const Color(0xFF1A1A2E),
-            margin: const EdgeInsets.symmetric(vertical: 8),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const CircleAvatar(
-                        backgroundColor: Colors.pinkAccent,
-                        child: Icon(Icons.person, color: Colors.white),
-                      ),
-                      const SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(post["name"], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                          Text(post["time"], style: const TextStyle(color: Colors.white54, fontSize: 10)),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(post["content"], style: const TextStyle(color: Colors.white75, fontSize: 14)),
-                  if (post["type"] == "video") ...[
-                    const SizedBox(height: 10),
-                    Container(
-                      height: 150,
-                      decoration: BoxDecoration(
-                        color: Colors.black38,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Center(
-                        child: Icon(Icons.play_circle_fill, size: 50, color: Colors.pinkAccent),
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 10),
-                  const Divider(color: Colors.white12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      TextButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(Icons.favorite_border, color: Colors.white54, size: 18),
-                        label: const Text("Like", style: TextStyle(color: Colors.white54)),
-                      ),
-                      TextButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(Icons.comment, color: Colors.white54, size: 18),
-                        label: const Text("Comment", style: TextStyle(color: Colors.white54)),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
+      body: const Center(
+        child: Text("Moments & Video Status Feed", style: TextStyle(color: Colors.white54)),
       ),
     );
   }
@@ -378,8 +241,14 @@ class MessageScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: Text("Messages & Chats", style: TextStyle(color: Colors.white, fontSize: 18))),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Messages & Friends"),
+        backgroundColor: const Color(0xFF1A1A2E),
+      ),
+      body: const Center(
+        child: Text("Direct Chats & Calling", style: TextStyle(color: Colors.white54)),
+      ),
     );
   }
 }
@@ -463,39 +332,134 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
-// 3. 14-सीटर वॉयस चैट रूम स्क्रीन
-class VoiceChatRoomScreen extends StatelessWidget {
+// 3. प्रोफेशनल 14-सीटर वॉयस चैट रूम (स्क्रीनशॉट के जैसी थीम और यूनिक गिफ्ट्स के साथ)
+class VoiceChatRoomScreen extends StatefulWidget {
   const VoiceChatRoomScreen({super.key});
+
+  @override
+  State<VoiceChatRoomScreen> createState() => _VoiceChatRoomScreenState();
+}
+
+class _VoiceChatRoomScreenState extends State<VoiceChatRoomScreen> {
+  final List<String> _chatMessages = [
+    "प्यारे बाबा 2: Welcome to the official room!",
+    "@KARAN WC DEAR 🍻",
+    "@missyoull very good baby"
+  ];
+  final TextEditingController _msgController = TextEditingController();
+
+  // यूनिक गिफ्ट्स की लिस्ट
+  final List<Map<String, dynamic>> _uniqueGifts = [
+    {"name": "Royal Bicycle 🚲", "price": "500 Diamonds", "icon": Icons.directions_bike},
+    {"name": "Golden Crown 👑", "price": "1000 Diamonds", "icon": Icons.monetization_on},
+    {"name": "Magic Rose 🌹", "price": "100 Diamonds", "icon": Icons.local_florist},
+    {"name": "Super Car 🏎️", "price": "5000 Diamonds", "icon": Icons.directions_car},
+  ];
+
+  void _sendChatMessage() {
+    if (_msgController.text.trim().isNotEmpty) {
+      setState(() {
+        _chatMessages.add("KARAN: ${_msgController.text.trim()}");
+        _msgController.clear();
+      });
+    }
+  }
+
+  // यूनिक गिफ्ट्स भेजने का बॉटम शीट मेनू
+  void _showGiftStore() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1E1E2C),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(20),
+        height: 280,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text("🎁 Send Unique Room Gifts", style: TextStyle(color: Colors.amberAccent, fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 15),
+            Expanded(
+              child: GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                  childAspectRatio: 3,
+                ),
+                itemCount: _uniqueGifts.length,
+                itemBuilder: (context, index) {
+                  final gift = _uniqueGifts[index];
+                  return ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2A2A3D)),
+                    icon: Icon(gift["icon"], color: Colors.pinkAccent),
+                    label: Text(gift["name"], style: const TextStyle(color: Colors.white, fontSize: 12)),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      setState(() {
+                        _chatMessages.add("🎁 Gift Sent: ${gift["name"]} successfully!");
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("You sent ${gift["name"]}! 🎉")),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF241005), // स्क्रीनशॉट जैसी प्रीमियम रॉयल ब्राउन थीम
       appBar: AppBar(
-        title: const Text("Hind Voice Room (#101)", style: TextStyle(color: Colors.amberAccent)),
-        backgroundColor: const Color(0xFF1A1A2E),
+        title: const Text("प्यारे बाबा 2 रूम (#101)", style: TextStyle(color: Colors.amberAccent)),
+        backgroundColor: const Color(0xFF1A0A02),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.card_giftcard, color: Colors.pinkAccent),
+            onPressed: _showGiftStore,
+            tooltip: "Unique Gifts",
+          ),
+          IconButton(
+            icon: const Icon(Icons.exit_to_app, color: Colors.white70),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
       ),
       body: Column(
         children: [
+          // 14 सीट्स का लेआउट (ऊपर होस्ट + नीचे 13 गेस्ट सीट्स)
           SizedBox(
-            height: 280,
+            height: 260,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    width: 55,
-                    height: 55,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.amberAccent, width: 3),
-                      color: const Color(0xFF2A2A3D),
-                    ),
-                    child: const Icon(Icons.mic, color: Colors.greenAccent, size: 24),
+                  // होस्ट सीट (Seat 1) - स्क्रीनशॉट जैसी बड़ी स्पेशल सीट
+                  Column(
+                    children: [
+                      Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.amberAccent, width: 3),
+                          color: const Color(0xFF3A1C08),
+                        ),
+                        child: const Icon(Icons.mic, color: Colors.greenAccent, size: 28),
+                      ),
+                      const SizedBox(height: 2),
+                      const Text("Host (VISHAL)", style: TextStyle(color: Colors.amberAccent, fontSize: 10, fontWeight: FontWeight.bold)),
+                    ],
                   ),
-                  const SizedBox(height: 2),
-                  const Text("Host", style: TextStyle(color: Colors.amberAccent, fontSize: 10)),
                   const SizedBox(height: 10),
+                  // बाकी 13 सीट्स
                   Expanded(
                     child: GridView.builder(
                       physics: const NeverScrollableScrollPhysics(),
@@ -509,8 +473,8 @@ class VoiceChatRoomScreen extends StatelessWidget {
                         return Container(
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: const Color(0xFF222233),
-                            border: Border.all(color: Colors.white24, width: 2),
+                            color: const Color(0xFF331504),
+                            border: Border.all(color: Colors.amber.withOpacity(0.4), width: 2),
                           ),
                           child: Center(
                             child: Text("S${index + 2}", style: const TextStyle(color: Colors.white70, fontSize: 8)),
@@ -521,6 +485,76 @@ class VoiceChatRoomScreen extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+          ),
+
+          // रूम नोटिस बोर्ड (स्क्रीनशॉट के जैसा)
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 12),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.black45,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.amber.withOpacity(0.3)),
+            ),
+            child: const Text(
+              "Room Notice: प्यारे बाबा 2 के रूम के एडमिन न किसी को ऐड करते हैं... (OWNER: VISHAL 🍻)",
+              style: TextStyle(color: Colors.white70, fontSize: 11),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+
+          const SizedBox(height: 5),
+
+          // लाइव चैट और बबल्स सेक्शन
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              itemCount: _chatMessages.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 3),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.black26,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(_chatMessages[index], style: const TextStyle(color: Colors.white, fontSize: 12)),
+                  ),
+                );
+              },
+            ),
+          ),
+
+          // नीचे टाइपिंग और यूनिक गिफ्ट/म्यूजिक बटन पट्टी
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            color: const Color(0xFF1A0A02),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.card_giftcard, color: Colors.pinkAccent),
+                  onPressed: _showGiftStore,
+                  tooltip: "Unique Gifts",
+                ),
+                Expanded(
+                  child: TextField(
+                    controller: _msgController,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: const InputDecoration(
+                      hintText: "Say something...",
+                      hintStyle: TextStyle(color: Colors.white38),
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.send, color: Colors.amberAccent),
+                  onPressed: _sendChatMessage,
+                ),
+              ],
             ),
           ),
         ],
