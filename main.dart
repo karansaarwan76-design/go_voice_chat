@@ -253,7 +253,7 @@ class MessageScreen extends StatelessWidget {
   }
 }
 
-// टैब 4: प्रोफाइल स्क्रीन ('Me' - जिसमें VIP/SVIP Badge Store का बटन है)
+// टैब 4: प्रोफाइल स्क्रीन ('Me')
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -325,7 +325,6 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 15),
-              // VIP / SVIP Badge Store Button
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1E1E2C),
@@ -365,7 +364,6 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
-// VIP / SVIP Badge & Frame Store Screen
 class VipStoreScreen extends StatelessWidget {
   const VipStoreScreen({super.key});
 
@@ -465,7 +463,7 @@ class AppAdminDashboardScreen extends StatelessWidget {
   }
 }
 
-// 5. 14-सीटर वॉयस चैट रूम स्क्रीन (Room Theme Changer, Emoji Pack, Ludo, Carrom, Gifts के साथ)
+// 5. 14-सीटर वॉयस चैट रूम स्क्रीन (PK Battle, Voice Changer, Theme, Games, Gifts के साथ)
 class VoiceChatRoomScreen extends StatefulWidget {
   const VoiceChatRoomScreen({super.key});
 
@@ -481,8 +479,8 @@ class _VoiceChatRoomScreenState extends State<VoiceChatRoomScreen> {
   ];
   final TextEditingController _msgController = TextEditingController();
 
-  // रूम थीम बदलने के लिए कलर स्टेट
-  Color _roomBgColor = const Color(0xFF241005); // डिफ़ॉल्ट रॉयल ब्राउन
+  Color _roomBgColor = const Color(0xFF241005);
+  bool _isPkActive = false; // PK बैटल स्टेटस
 
   final List<bool> _isSeatLocked = List.generate(14, (index) => false);
   final List<bool> _isMicMuted = List.generate(14, (index) => false);
@@ -494,7 +492,6 @@ class _VoiceChatRoomScreenState extends State<VoiceChatRoomScreen> {
     {"name": "Super Car 🏎️", "icon": Icons.directions_car},
   ];
 
-  // कस्टम इमोजी पैक लिस्ट
   final List<String> _customEmojis = ["🔥", "🍻", "🌹", "👑", "✨", "💎", "🎉", "❤️", "🚀", "🥰"];
 
   void _sendChatMessage({String text = ""}) {
@@ -507,7 +504,58 @@ class _VoiceChatRoomScreenState extends State<VoiceChatRoomScreen> {
     }
   }
 
-  // रूम थीम चेंजर डायलॉग
+  // वॉइस चेंजर डायलॉग
+  void _showVoiceChangerDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1E1E2C),
+        title: const Text("🎙️ Magic Voice Changer", style: TextStyle(color: Colors.amberAccent)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.mic, color: Colors.white54),
+              title: const Text("Normal Voice", style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Voice set to Normal")));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.child_care, color: Colors.pinkAccent),
+              title: const Text("Kid / Baby Voice", style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Voice changed to Kid! 👶")));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.android, color: Colors.greenAccent),
+              title: const Text("Robot Voice", style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Voice changed to Robot! 🤖")));
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // PK बैटल शुरू करने का फंक्शन
+  void _togglePkBattle() {
+    setState(() {
+      _isPkActive = !_isPkActive;
+      if (_isPkActive) {
+        _chatMessages.add("⚔️ Room PK Battle Started against opposing room!");
+      } else {
+        _chatMessages.add("⚔️ PK Battle Ended.");
+      }
+    });
+  }
+
   void _showThemeChangeDialog() {
     showDialog(
       context: context,
@@ -547,7 +595,6 @@ class _VoiceChatRoomScreenState extends State<VoiceChatRoomScreen> {
     );
   }
 
-  // इमोजी पैक पिकर बॉटम शीट
   void _showEmojiPicker() {
     showModalBottomSheet(
       context: context,
@@ -728,7 +775,7 @@ class _VoiceChatRoomScreenState extends State<VoiceChatRoomScreen> {
   }
 
   void _showGiftStore() {
-    showModalBottomSheet(
+    showModalButtonSheet(
       context: context,
       backgroundColor: const Color(0xFF1E1E2C),
       builder: (context) => Container(
@@ -773,12 +820,23 @@ class _VoiceChatRoomScreenState extends State<VoiceChatRoomScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _roomBgColor, // डायनेमिक रूम थीम बैकग्राउंड
+      backgroundColor: _roomBgColor,
       appBar: AppBar(
         title: const Text("प्यारे बाबा 2 रूम (#101)", style: TextStyle(color: Colors.amberAccent)),
         backgroundColor: const Color(0xFF1A0A02),
         actions: [
-          // रूम थीम बदलने का बटन
+          // PK बैटल टॉगल बटन
+          IconButton(
+            icon: Icon(Icons.sports_kabaddi, color: _isPkActive ? Colors.redAccent : Colors.white70),
+            onPressed: _togglePkBattle,
+            tooltip: "Toggle PK Battle",
+          ),
+          // वॉइस चेंजर बटन
+          IconButton(
+            icon: const Icon(Icons.settings_voice, color: Colors.orangeAccent),
+            onPressed: _showVoiceChangerDialog,
+            tooltip: "Voice Changer",
+          ),
           IconButton(
             icon: const Icon(Icons.palette, color: Colors.cyanAccent),
             onPressed: _showThemeChangeDialog,
@@ -790,11 +848,6 @@ class _VoiceChatRoomScreenState extends State<VoiceChatRoomScreen> {
             tooltip: "Ludo & Carrom Games",
           ),
           IconButton(
-            icon: const Icon(Icons.casino, color: Colors.amberAccent),
-            onPressed: _showLuckyGameDialog,
-            tooltip: "Lucky Game",
-          ),
-          IconButton(
             icon: const Icon(Icons.card_giftcard, color: Colors.pinkAccent),
             onPressed: _showGiftStore,
             tooltip: "Gifts",
@@ -803,6 +856,20 @@ class _VoiceChatRoomScreenState extends State<VoiceChatRoomScreen> {
       ),
       body: Column(
         children: [
+          // यदि PK बैटल एक्टिव है तो ऊपर PK स्कोर प्रोग्रेस बार दिखेगा
+          if (_isPkActive)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              color: Colors.black54,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: const [
+                  Text("Team A: 12,450 💎", style: TextStyle(color: Colors.amberAccent, fontWeight: FontWeight.bold)),
+                  Text("VS", style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+                  Text("Team B: 9,820 💎", style: TextStyle(color: Colors.pinkAccent, fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
           SizedBox(
             height: 260,
             child: Padding(
@@ -919,7 +986,6 @@ class _VoiceChatRoomScreenState extends State<VoiceChatRoomScreen> {
             color: const Color(0xFF1A0A02),
             child: Row(
               children: [
-                // कस्टम इमोजी पैक खोलने का बटन
                 IconButton(
                   icon: const Icon(Icons.emoji_emotions, color: Colors.amberAccent),
                   onPressed: _showEmojiPicker,
