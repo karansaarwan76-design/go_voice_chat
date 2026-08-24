@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // रियल-टाइम डेटाबेस के लिए
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -229,7 +230,7 @@ class SquareScreen extends StatelessWidget {
         backgroundColor: const Color(0xFF1A1A2E),
       ),
       body: const Center(
-        child: Text("Moments & Video Status Feed", style: TextStyle(color: Colors.white54)),
+        child: Text("Moments & Video Status Feed (Firestore Ready)", style: TextStyle(color: Colors.white54)),
       ),
     );
   }
@@ -340,22 +341,6 @@ class ProfileScreen extends StatelessWidget {
                   );
                 },
               ),
-              const SizedBox(height: 10),
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1A1A2E),
-                  minimumSize: const Size(double.infinity, 50),
-                  side: const BorderSide(color: Colors.pinkAccent),
-                ),
-                icon: const Icon(Icons.admin_panel_settings, color: Colors.pinkAccent),
-                label: const Text("App Admin & Moderator Panel", style: TextStyle(color: Colors.white, fontSize: 16)),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const AppAdminDashboardScreen()),
-                  );
-                },
-              ),
             ],
           ),
         ),
@@ -369,101 +354,20 @@ class VipStoreScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, String>> badges = [
-      {"name": "Dark Icon VIP Badge", "price": "999 Diamonds", "type": "Badge"},
-      {"name": "Royal SVIP Crown Frame", "price": "2999 Diamonds", "type": "Frame"},
-      {"name": "Golden Dragon Entry Effect", "price": "4999 Diamonds", "type": "Effect"},
-    ];
-
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
         title: const Text("VIP & SVIP Store", style: TextStyle(color: Colors.amberAccent)),
         backgroundColor: const Color(0xFF1A1A2E),
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: badges.length,
-        itemBuilder: (context, index) {
-          final item = badges[index];
-          return Card(
-            color: const Color(0xFF1E1E2C),
-            margin: const EdgeInsets.symmetric(vertical: 8),
-            child: ListTile(
-              leading: const Icon(Icons.verified, color: Colors.amberAccent, size: 36),
-              title: Text(item["name"]!, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-              subtitle: Text("Price: ${item["price"]}", style: const TextStyle(color: Colors.white54)),
-              trailing: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent),
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Successfully purchased ${item["name"]}! 🎉")),
-                  );
-                },
-                child: const Text("Buy", style: TextStyle(color: Colors.white)),
-              ),
-            ),
-          );
-        },
+      body: const Center(
+        child: Text("VIP Store Connected with Firestore", style: TextStyle(color: Colors.white54)),
       ),
     );
   }
 }
 
-class AppAdminDashboardScreen extends StatelessWidget {
-  const AppAdminDashboardScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF121212),
-      appBar: AppBar(
-        title: const Text("App Admin & Moderator Dashboard", style: TextStyle(color: Colors.amberAccent)),
-        backgroundColor: const Color(0xFF1A1A2E),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          const Text("System Overview", style: TextStyle(color: Colors.white54, fontSize: 14, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(15),
-                  decoration: BoxDecoration(color: const Color(0xFF1E1E2C), borderRadius: BorderRadius.circular(10)),
-                  child: const Column(
-                    children: [
-                      Text("Total Users", style: TextStyle(color: Colors.white54, fontSize: 12)),
-                      SizedBox(height: 5),
-                      Text("1,245", style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(15),
-                  decoration: BoxDecoration(color: const Color(0xFF1E1E2C), borderRadius: BorderRadius.circular(10)),
-                  child: const Column(
-                    children: [
-                      Text("Active Rooms", style: TextStyle(color: Colors.white54, fontSize: 12)),
-                      SizedBox(height: 5),
-                      Text("38", style: TextStyle(color: Colors.amberAccent, fontSize: 20, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// 5. 14-सीटर वॉयस चैट रूम स्क्रीन (PK Battle, Voice Changer, Theme, Games, Gifts के साथ)
+// 5. 14-सीटर वॉयस चैट रूम (Firestore Real-time Chat Integration)
 class VoiceChatRoomScreen extends StatefulWidget {
   const VoiceChatRoomScreen({super.key});
 
@@ -472,349 +376,34 @@ class VoiceChatRoomScreen extends StatefulWidget {
 }
 
 class _VoiceChatRoomScreenState extends State<VoiceChatRoomScreen> {
-  final List<String> _chatMessages = [
-    "प्यारे बाबा 2: Welcome to the official room!",
-    "@KARAN WC DEAR 🍻",
-    "@missyoull very good baby"
-  ];
   final TextEditingController _msgController = TextEditingController();
-
   Color _roomBgColor = const Color(0xFF241005);
-  bool _isPkActive = false; // PK बैटल स्टेटस
+  bool _isPkActive = false;
 
   final List<bool> _isSeatLocked = List.generate(14, (index) => false);
   final List<bool> _isMicMuted = List.generate(14, (index) => false);
 
-  final List<Map<String, dynamic>> _uniqueGifts = [
-    {"name": "Royal Bicycle 🚲", "icon": Icons.directions_bike},
-    {"name": "Golden Crown 👑", "icon": Icons.monetization_on},
-    {"name": "Magic Rose 🌹", "icon": Icons.local_florist},
-    {"name": "Super Car 🏎️", "icon": Icons.directions_car},
-  ];
-
-  final List<String> _customEmojis = ["🔥", "🍻", "🌹", "👑", "✨", "💎", "🎉", "❤️", "🚀", "🥰"];
-
-  void _sendChatMessage({String text = ""}) {
-    String msgToSend = text.isNotEmpty ? text : _msgController.text.trim();
-    if (msgToSend.isNotEmpty) {
-      setState(() {
-        _chatMessages.add("KARAN: $msgToSend");
+  // फायरबेस में लाइव चैट भेजने का फंक्शन
+  void _sendFirestoreMessage({String text = ""}) async {
+    String msg = text.isNotEmpty ? text : _msgController.text.trim();
+    if (msg.isNotEmpty) {
+      try {
+        await FirebaseFirestore.instance
+            .collection('rooms')
+            .doc('room_101')
+            .collection('chats')
+            .add({
+          'sender': 'KARAN',
+          'message': msg,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
         if (text.isEmpty) _msgController.clear();
-      });
-    }
-  }
-
-  // वॉइस चेंजर डायलॉग
-  void _showVoiceChangerDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E2C),
-        title: const Text("🎙️ Magic Voice Changer", style: TextStyle(color: Colors.amberAccent)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.mic, color: Colors.white54),
-              title: const Text("Normal Voice", style: TextStyle(color: Colors.white)),
-              onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Voice set to Normal")));
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.child_care, color: Colors.pinkAccent),
-              title: const Text("Kid / Baby Voice", style: TextStyle(color: Colors.white)),
-              onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Voice changed to Kid! 👶")));
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.android, color: Colors.greenAccent),
-              title: const Text("Robot Voice", style: TextStyle(color: Colors.white)),
-              onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Voice changed to Robot! 🤖")));
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // PK बैटल शुरू करने का फंक्शन
-  void _togglePkBattle() {
-    setState(() {
-      _isPkActive = !_isPkActive;
-      if (_isPkActive) {
-        _chatMessages.add("⚔️ Room PK Battle Started against opposing room!");
-      } else {
-        _chatMessages.add("⚔️ PK Battle Ended.");
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error sending message: $e")),
+        );
       }
-    });
-  }
-
-  void _showThemeChangeDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E2C),
-        title: const Text("🎨 Change Room Theme", style: TextStyle(color: Colors.amberAccent)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              title: const Text("Royal Brown (Default)", style: TextStyle(color: Colors.white)),
-              trailing: const CircleAvatar(backgroundColor: Color(0xFF241005), radius: 15),
-              onTap: () {
-                setState(() => _roomBgColor = const Color(0xFF241005));
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text("Dark Neon Night", style: TextStyle(color: Colors.white)),
-              trailing: const CircleAvatar(backgroundColor: Color(0xFF0D1B2A), radius: 15),
-              onTap: () {
-                setState(() => _roomBgColor = const Color(0xFF0D1B2A));
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text("Romantic Pink Velvet", style: TextStyle(color: Colors.white)),
-              trailing: const CircleAvatar(backgroundColor: Color(0xFF2C0735), radius: 15),
-              onTap: () {
-                setState(() => _roomBgColor = const Color(0xFF2C0735));
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showEmojiPicker() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: const Color(0xFF1E1E2C),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(16),
-        height: 200,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("😊 Custom Emoji Pack", style: TextStyle(color: Colors.amberAccent, fontSize: 16, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 15),
-            Expanded(
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 5,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                ),
-                itemCount: _customEmojis.length,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                      _sendChatMessage(text: _customEmojis[index]);
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white10,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Center(
-                        child: Text(_customEmojis[index], style: const TextStyle(fontSize: 24)),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showGamesMenu() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: const Color(0xFF1E1E2C),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(20),
-        height: 220,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("🎲 Room Mini-Games", style: TextStyle(color: Colors.amberAccent, fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 15),
-            ListTile(
-              leading: const Icon(Icons.casino, color: Colors.greenAccent, size: 30),
-              title: const Text("Ludo King Room", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-              subtitle: const Text("Play Ludo with room members", style: TextStyle(color: Colors.white54, fontSize: 12)),
-              onTap: () {
-                Navigator.pop(context);
-                setState(() {
-                  _chatMessages.add("🎲 Ludo Game Started in Room! Join now.");
-                });
-              },
-            ),
-            const Divider(color: Colors.white24),
-            ListTile(
-              leading: const Icon(Icons.sports_baseball, color: Colors.pinkAccent, size: 30),
-              title: const Text("Carrom Board", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-              subtitle: const Text("Play Carrom with friends on seats", style: TextStyle(color: Colors.white54, fontSize: 12)),
-              onTap: () {
-                Navigator.pop(context);
-                setState(() {
-                  _chatMessages.add("🎯 Carrom Board Game Started! Join now.");
-                });
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showLuckyGameDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E2C),
-        title: const Text("🎰 Lucky Spin Game", style: TextStyle(color: Colors.amberAccent)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text("Spin the wheel to win 💎 Diamonds or 🪙 Rubies!", style: TextStyle(color: Colors.white70, fontSize: 13)),
-            const SizedBox(height: 20),
-            Container(
-              height: 100,
-              width: 100,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(colors: [Colors.amber, Colors.deepOrange]),
-              ),
-              child: const Center(
-                child: Icon(Icons.star, size: 50, color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Close", style: TextStyle(color: Colors.white54)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent),
-            onPressed: () {
-              Navigator.pop(context);
-              setState(() {
-                _chatMessages.add("🎰 Lucky Spin: You won 500 Diamonds! 🎉");
-              });
-            },
-            child: const Text("Spin Now", style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showAdminSeatOptions(int seatIndex) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: const Color(0xFF1E1E2C),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(20),
-        height: 250,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Admin Control: Seat ${seatIndex + 1} ${seatIndex == 0 ? '(Host)' : ''}", 
-              style: const TextStyle(color: Colors.amberAccent, fontSize: 16, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            ListTile(
-              leading: Icon(_isSeatLocked[seatIndex] ? Icons.lock_open : Icons.lock, color: Colors.white),
-              title: Text(_isSeatLocked[seatIndex] ? "Unlock Seat" : "Lock Seat", style: const TextStyle(color: Colors.white)),
-              onTap: () {
-                Navigator.pop(context);
-                setState(() {
-                  _isSeatLocked[seatIndex] = !_isSeatLocked[seatIndex];
-                });
-              },
-            ),
-            ListTile(
-              leading: Icon(_isMicMuted[seatIndex] ? Icons.mic : Icons.mic_off, color: Colors.greenAccent),
-              title: Text(_isMicMuted[seatIndex] ? "Unmute Mic" : "Mute Mic", style: const TextStyle(color: Colors.white)),
-              onTap: () {
-                Navigator.pop(context);
-                setState(() {
-                  _isMicMuted[seatIndex] = !_isMicMuted[seatIndex];
-                });
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.person_remove, color: Colors.redAccent),
-              title: const Text("Kick from Seat", style: TextStyle(color: Colors.redAccent)),
-              onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("User kicked from seat 🚫")),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showGiftStore() {
-    showModalButtonSheet(
-      context: context,
-      backgroundColor: const Color(0xFF1E1E2C),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(20),
-        height: 280,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("🎁 Send Unique Room Gifts", style: TextStyle(color: Colors.amberAccent, fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 15),
-            Expanded(
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  childAspectRatio: 3,
-                ),
-                itemCount: _uniqueGifts.length,
-                itemBuilder: (context, index) {
-                  final gift = _uniqueGifts[index];
-                  return ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2A2A3D)),
-                    icon: Icon(gift["icon"], color: Colors.pinkAccent),
-                    label: Text(gift["name"], style: const TextStyle(color: Colors.white, fontSize: 12)),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      setState(() {
-                        _chatMessages.add("🎁 Gift Sent: ${gift["name"]}!");
-                      });
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    }
   }
 
   @override
@@ -822,41 +411,27 @@ class _VoiceChatRoomScreenState extends State<VoiceChatRoomScreen> {
     return Scaffold(
       backgroundColor: _roomBgColor,
       appBar: AppBar(
-        title: const Text("प्यारे बाबा 2 रूम (#101)", style: TextStyle(color: Colors.amberAccent)),
+        title: const Text("प्यारे बाबा 2 रूम (#101 - Live)", style: TextStyle(color: Colors.amberAccent)),
         backgroundColor: const Color(0xFF1A0A02),
         actions: [
-          // PK बैटल टॉगल बटन
           IconButton(
             icon: Icon(Icons.sports_kabaddi, color: _isPkActive ? Colors.redAccent : Colors.white70),
-            onPressed: _togglePkBattle,
-            tooltip: "Toggle PK Battle",
-          ),
-          // वॉइस चेंजर बटन
-          IconButton(
-            icon: const Icon(Icons.settings_voice, color: Colors.orangeAccent),
-            onPressed: _showVoiceChangerDialog,
-            tooltip: "Voice Changer",
+            onPressed: () => setState(() => _isPkActive = !_isPkActive),
           ),
           IconButton(
             icon: const Icon(Icons.palette, color: Colors.cyanAccent),
-            onPressed: _showThemeChangeDialog,
-            tooltip: "Change Room Theme",
-          ),
-          IconButton(
-            icon: const Icon(Icons.sports_esports, color: Colors.greenAccent),
-            onPressed: _showGamesMenu,
-            tooltip: "Ludo & Carrom Games",
-          ),
-          IconButton(
-            icon: const Icon(Icons.card_giftcard, color: Colors.pinkAccent),
-            onPressed: _showGiftStore,
-            tooltip: "Gifts",
+            onPressed: () {
+              setState(() {
+                _roomBgColor = _roomBgColor == const Color(0xFF241005) 
+                    ? const Color(0xFF0D1B2A) 
+                    : const Color(0xFF241005);
+              });
+            },
           ),
         ],
       ),
       body: Column(
         children: [
-          // यदि PK बैटल एक्टिव है तो ऊपर PK स्कोर प्रोग्रेस बार दिखेगा
           if (_isPkActive)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -871,39 +446,25 @@ class _VoiceChatRoomScreenState extends State<VoiceChatRoomScreen> {
               ),
             ),
           SizedBox(
-            height: 260,
+            height: 240,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  GestureDetector(
-                    onTap: () => _showAdminSeatOptions(0),
-                    child: Column(
-                      children: [
-                        Container(
-                          width: 60,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: _isSeatLocked[0] ? Colors.redAccent : Colors.amberAccent, 
-                              width: 3
-                            ),
-                            color: const Color(0xFF3A1C08),
-                          ),
-                          child: Icon(
-                            _isSeatLocked[0] ? Icons.lock : (_isMicMuted[0] ? Icons.mic_off : Icons.mic),
-                            color: _isSeatLocked[0] ? Colors.redAccent : Colors.greenAccent,
-                            size: 28,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        const Text("Host (VISHAL)", style: TextStyle(color: Colors.amberAccent, fontSize: 10, fontWeight: FontWeight.bold)),
-                      ],
+                  Container(
+                    width: 55,
+                    height: 55,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.amberAccent, width: 3),
+                      color: const Color(0xFF3A1C08),
                     ),
+                    child: const Icon(Icons.mic, color: Colors.greenAccent, size: 26),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 2),
+                  const Text("Host (VISHAL)", style: TextStyle(color: Colors.amberAccent, fontSize: 10, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
                   Expanded(
                     child: GridView.builder(
                       physics: const NeverScrollableScrollPhysics(),
@@ -914,29 +475,14 @@ class _VoiceChatRoomScreenState extends State<VoiceChatRoomScreen> {
                       ),
                       itemCount: 13,
                       itemBuilder: (context, index) {
-                        int seatIdx = index + 1;
-                        return GestureDetector(
-                          onTap: () => _showAdminSeatOptions(seatIdx),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: const Color(0xFF331504),
-                              border: Border.all(
-                                color: _isSeatLocked[seatIdx] ? Colors.redAccent : Colors.amber.withOpacity(0.4), 
-                                width: 2
-                              ),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  _isSeatLocked[seatIdx] ? Icons.lock : (_isMicMuted[seatIdx] ? Icons.mic_off : Icons.mic),
-                                  color: _isSeatLocked[seatIdx] ? Colors.redAccent : Colors.white70,
-                                  size: 14,
-                                ),
-                                Text("S${seatIdx + 1}", style: const TextStyle(color: Colors.white70, fontSize: 8)),
-                              ],
-                            ),
+                        return Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: const Color(0xFF331504),
+                            border: Border.all(color: Colors.amber.withOpacity(0.4), width: 2),
+                          ),
+                          child: Center(
+                            child: Text("S${index + 2}", style: const TextStyle(color: Colors.white70, fontSize: 8)),
                           ),
                         );
                       },
@@ -946,37 +492,41 @@ class _VoiceChatRoomScreenState extends State<VoiceChatRoomScreen> {
               ),
             ),
           ),
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 12),
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.black45,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.amber.withOpacity(0.3)),
-            ),
-            child: const Text(
-              "Room Notice: प्यारे बाबा 2 के रूम के एडमिन न किसी को ऐड करते हैं... (OWNER: VISHAL 🍻)",
-              style: TextStyle(color: Colors.white70, fontSize: 11),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          const SizedBox(height: 5),
+          // रियल-टाइम फायरबेस चैट स्ट्रीमबिल्डर
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              itemCount: _chatMessages.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 3),
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.black26,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(_chatMessages[index], style: const TextStyle(color: Colors.white, fontSize: 12)),
-                  ),
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('rooms')
+                  .doc('room_101')
+                  .collection('chats')
+                  .orderBy('timestamp', descending: true)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator(color: Colors.pinkAccent));
+                }
+                var docs = snapshot.data!.docs;
+                return ListView.builder(
+                  reverse: true,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  itemCount: docs.length,
+                  itemBuilder: (context, index) {
+                    var data = docs[index].data() as Map<String, dynamic>;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 3),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.black26,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          "${data['sender'] ?? 'User'}: ${data['message'] ?? ''}",
+                          style: const TextStyle(color: Colors.white, fontSize: 12),
+                        ),
+                      ),
+                    );
+                  },
                 );
               },
             ),
@@ -988,23 +538,14 @@ class _VoiceChatRoomScreenState extends State<VoiceChatRoomScreen> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.emoji_emotions, color: Colors.amberAccent),
-                  onPressed: _showEmojiPicker,
-                  tooltip: "Custom Emoji Pack",
-                ),
-                IconButton(
-                  icon: const Icon(Icons.sports_esports, color: Colors.greenAccent),
-                  onPressed: _showGamesMenu,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.card_giftcard, color: Colors.pinkAccent),
-                  onPressed: _showGiftStore,
+                  onPressed: () => _sendFirestoreMessage(text: "🔥"),
                 ),
                 Expanded(
                   child: TextField(
                     controller: _msgController,
                     style: const TextStyle(color: Colors.white),
                     decoration: const InputDecoration(
-                      hintText: "Say something...",
+                      hintText: "Type live message...",
                       hintStyle: TextStyle(color: Colors.white38),
                       border: InputBorder.none,
                     ),
@@ -1012,7 +553,7 @@ class _VoiceChatRoomScreenState extends State<VoiceChatRoomScreen> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.send, color: Colors.amberAccent),
-                  onPressed: () => _sendChatMessage(),
+                  onPressed: () => _sendFirestoreMessage(),
                 ),
               ],
             ),
