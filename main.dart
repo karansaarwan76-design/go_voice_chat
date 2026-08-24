@@ -2,7 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // रियल-टाइम डेटाबेस के लिए
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:agora_rtc_engine/agora_rtc_engine.dart'; // असली वॉयस कॉलिंग के लिए अगोरा SDK
+import 'package:permission_handler/permission_handler.dart'; // माइक परमिशन के लिए
+
+// अगोरा ऐप आईडी (आप इसे अपनी अगोरा कंसोल आईडी से बदल सकते हैं)
+const String agoraAppId = "YOUR_AGORA_APP_ID";
+const String agoraChannel = "hind_voice_room_101";
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -230,7 +236,7 @@ class SquareScreen extends StatelessWidget {
         backgroundColor: const Color(0xFF1A1A2E),
       ),
       body: const Center(
-        child: Text("Moments & Video Status Feed (Firestore Ready)", style: TextStyle(color: Colors.white54)),
+        child: Text("Moments & Video Status Feed", style: TextStyle(color: Colors.white54)),
       ),
     );
   }
@@ -325,22 +331,6 @@ class ProfileScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 15),
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1E1E2C),
-                  minimumSize: const Size(double.infinity, 50),
-                  side: const BorderSide(color: Colors.amberAccent),
-                ),
-                icon: const Icon(Icons.workspace_premium, color: Colors.amberAccent),
-                label: const Text("VIP / SVIP Badge & Frame Store", style: TextStyle(color: Colors.white, fontSize: 16)),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const VipStoreScreen()),
-                  );
-                },
-              ),
             ],
           ),
         ),
@@ -349,25 +339,7 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
-class VipStoreScreen extends StatelessWidget {
-  const VipStoreScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF121212),
-      appBar: AppBar(
-        title: const Text("VIP & SVIP Store", style: TextStyle(color: Colors.amberAccent)),
-        backgroundColor: const Color(0xFF1A1A2E),
-      ),
-      body: const Center(
-        child: Text("VIP Store Connected with Firestore", style: TextStyle(color: Colors.white54)),
-      ),
-    );
-  }
-}
-
-// 5. 14-सीटर वॉयस चैट रूम (Firestore Real-time Chat Integration)
+// 5. 14-सीटर वॉयस चैट रूम (Agora Voice Call + Firebase Real-time Chat)
 class VoiceChatRoomScreen extends StatefulWidget {
   const VoiceChatRoomScreen({super.key});
 
@@ -376,33 +348,73 @@ class VoiceChatRoomScreen extends StatefulWidget {
 }
 
 class _VoiceChatRoomScreenState extends State<VoiceChatRoomScreen> {
-  final TextEditingController _msgController = TextEditingController();
+  late RtcEngine _rtcEngine;
+  bool _isJoined = false;
+  bool _isMicMuted = false;
   Color _roomBgColor = const Color(0xFF241005);
-  bool _isPkActive = false;
+  final TextEditingController _msgController = TextEditingController();
 
-  final List<bool> _isSeatLocked = List.generate(14, (index) => false);
-  final List<bool> _isMicMuted = List.generate(14, (index) => false);
+  @override
+  void initState() {
+    super.initState();
+    initAgora();
+  }
 
-  // फायरबेस में लाइव चैट भेजने का फंक्शन
+  Future<void> initAgora() async {
+    // माइक की परमिशन लें
+    await [Permission.microphone].request();
+
+    // अगोरा इंजन बनाएं
+    _rtcEngine = createAgoraRtcEngine();
+    await _rtcEngine.initialize(const RtcEngineContext(
+      appId: agoraAppId,
+      channelProfile: ChannelProfileType.channelProfileLiveBroadcasting,
+    ));
+
+    // ऑडियो इनेबल करें
+    await _rtcEngine.enableAudio();
+    await _rtcEngine.setClientRole(role: ClientRoleType.clientRoleBroadcaster);
+
+    // चैनल ज्वाइन करें
+    await _rtcEngine.joinChannel(
+      token: "", // टेस्ट टोकन या खाली स्ट्रिंग
+      channelId: agoraChannel,
+      uid: 0,
+      options: const ChannelMediaOptions(),
+    );
+
+    setState(() {
+      _isJoined = true;
+    });
+  }
+
+  @override
+  void dispose() {
+    _rtcEngine.leaveChannel();
+    _rtcEngine.release();
+    super.dispose();
+  }
+
+  void _toggleMute() {
+    setState(() {
+      _isMicMuted = !_isMicMuted;
+      _rtcEngine.muteLocalAudioStream(_isMicMuted);
+    });
+  }
+
   void _sendFirestoreMessage({String text = ""}) async {
     String msg = text.isNotEmpty ? text : _msgController.text.trim();
     if (msg.isNotEmpty) {
-      try {
-        await FirebaseFirestore.instance
-            .collection('rooms')
-            .doc('room_101')
-            .collection('chats')
-            .add({
-          'sender': 'KARAN',
-          'message': msg,
-          'timestamp': FieldValue.serverTimestamp(),
-        });
-        if (text.isEmpty) _msgController.clear();
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error sending message: $e")),
-        );
-      }
+      await FirebaseFirestore.instance
+          .collection('rooms')
+          .doc('room_101')
+          .collection('chats')
+          .add({
+        'sender': 'KARAN',
+        'message': msg,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+      if (text.isEmpty) _msgController.clear();
     }
   }
 
@@ -411,40 +423,19 @@ class _VoiceChatRoomScreenState extends State<VoiceChatRoomScreen> {
     return Scaffold(
       backgroundColor: _roomBgColor,
       appBar: AppBar(
-        title: const Text("प्यारे बाबा 2 रूम (#101 - Live)", style: TextStyle(color: Colors.amberAccent)),
+        title: Text("प्यारे बाबा 2 (#101) ${_isJoined ? '🟢 Live Audio' : '⚪ Connecting...'}", 
+            style: const TextStyle(color: Colors.amberAccent, fontSize: 14)),
         backgroundColor: const Color(0xFF1A0A02),
         actions: [
           IconButton(
-            icon: Icon(Icons.sports_kabaddi, color: _isPkActive ? Colors.redAccent : Colors.white70),
-            onPressed: () => setState(() => _isPkActive = !_isPkActive),
-          ),
-          IconButton(
-            icon: const Icon(Icons.palette, color: Colors.cyanAccent),
-            onPressed: () {
-              setState(() {
-                _roomBgColor = _roomBgColor == const Color(0xFF241005) 
-                    ? const Color(0xFF0D1B2A) 
-                    : const Color(0xFF241005);
-              });
-            },
+            icon: Icon(_isMicMuted ? Icons.mic_off : Icons.mic, color: _isMicMuted ? Colors.redAccent : Colors.greenAccent),
+            onPressed: _toggleMute,
+            tooltip: "Mute/Unmute Mic",
           ),
         ],
       ),
       body: Column(
         children: [
-          if (_isPkActive)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              color: Colors.black54,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text("Team A: 12,450 💎", style: TextStyle(color: Colors.amberAccent, fontWeight: FontWeight.bold)),
-                  Text("VS", style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
-                  Text("Team B: 9,820 💎", style: TextStyle(color: Colors.pinkAccent, fontWeight: FontWeight.bold)),
-                ],
-              ),
-            ),
           SizedBox(
             height: 240,
             child: Padding(
@@ -460,10 +451,10 @@ class _VoiceChatRoomScreenState extends State<VoiceChatRoomScreen> {
                       border: Border.all(color: Colors.amberAccent, width: 3),
                       color: const Color(0xFF3A1C08),
                     ),
-                    child: const Icon(Icons.mic, color: Colors.greenAccent, size: 26),
+                    child: Icon(_isMicMuted ? Icons.mic_off : Icons.mic, color: Colors.greenAccent, size: 26),
                   ),
                   const SizedBox(height: 2),
-                  const Text("Host (VISHAL)", style: TextStyle(color: Colors.amberAccent, fontSize: 10, fontWeight: FontWeight.bold)),
+                  const Text("Host (KARAN)", style: TextStyle(color: Colors.amberAccent, fontSize: 10, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   Expanded(
                     child: GridView.builder(
@@ -492,7 +483,6 @@ class _VoiceChatRoomScreenState extends State<VoiceChatRoomScreen> {
               ),
             ),
           ),
-          // रियल-टाइम फायरबेस चैट स्ट्रीमबिल्डर
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
