@@ -155,11 +155,11 @@ class MainNavigationScreen extends StatefulWidget {
 }
 
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
-  int _currentIndex = 1; // डिफ़ॉल्ट 'Square' टैब खुलेगा ताकि आप नया मोमेंट्स फीचर देख सकें
+  int _currentIndex = 1; // डिफ़ॉल्ट रूप से Square (Moments) टैब खुलेगा
 
   final List<Widget> _screens = [
     const HomeScreen(),
-    const SquareScreen(), // नया मोमेंट्स और 40-Sec Video Status फीड
+    const SquareScreen(), // मोमेंट्स और वीडियो स्टेटस फीड
     const MessageScreen(),
     const ProfileScreen(),
   ];
@@ -234,7 +234,7 @@ class _SquareScreenState extends State<SquareScreen> {
       "type": "text",
     },
     {
-      "name": "Karan Saarwan",
+      "name": "KARAN",
       "time": "1 hour ago",
       "content": "New 40-second Haryanvi x Rajasthani DJ Anthem teaser 🎶🔥",
       "type": "video",
@@ -464,27 +464,8 @@ class ProfileScreen extends StatelessWidget {
 }
 
 // 3. 14-सीटर वॉयस चैट रूम स्क्रीन
-class VoiceChatRoomScreen extends StatefulWidget {
+class VoiceChatRoomScreen extends StatelessWidget {
   const VoiceChatRoomScreen({super.key});
-
-  @override
-  State<VoiceChatRoomScreen> createState() => _VoiceChatRoomScreenState();
-}
-
-class _VoiceChatRoomScreenState extends State<VoiceChatRoomScreen> {
-  final List<bool> _micStatus = List.generate(14, (index) => false);
-  final List<bool> _isSeatLocked = List.generate(14, (index) => false);
-  final List<String> _chatMessages = ["Room #101 Created. Welcome!"];
-  final TextEditingController _msgController = TextEditingController();
-
-  void _sendChatMessage() {
-    if (_msgController.text.trim().isNotEmpty) {
-      setState(() {
-        _chatMessages.add("User: ${_msgController.text.trim()}");
-        _msgController.clear();
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -540,42 +521,6 @@ class _VoiceChatRoomScreenState extends State<VoiceChatRoomScreen> {
                   ),
                 ],
               ),
-            ),
-          ),
-          const Divider(color: Colors.white12),
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              itemCount: _chatMessages.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2),
-                  child: Text(_chatMessages[index], style: const TextStyle(color: Colors.white, fontSize: 13)),
-                );
-              },
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            color: const Color(0xFF1A1A2E),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _msgController,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: const InputDecoration(
-                      hintText: "Type a message...",
-                      hintStyle: TextStyle(color: Colors.white38),
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.send, color: Colors.pinkAccent),
-                  onPressed: _sendChatMessage,
-                ),
-              ],
             ),
           ),
         ],
