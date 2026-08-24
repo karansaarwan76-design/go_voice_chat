@@ -253,7 +253,7 @@ class MessageScreen extends StatelessWidget {
   }
 }
 
-// टैब 4: प्रोफाइल स्क्रीन ('Me' - जिसमें Master Owner और App Admin Panel का बटन है)
+// टैब 4: प्रोफाइल स्क्रीन ('Me' - जिसमें VIP/SVIP Badge Store का बटन है)
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -291,7 +291,7 @@ class ProfileScreen extends StatelessWidget {
                             children: const [
                               Text("KARAN (Master Owner)", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                               SizedBox(height: 4),
-                              Text("ID: 1526476546\nSuper Admin Access", style: TextStyle(color: Colors.white70, fontSize: 11)),
+                              Text("ID: 1526476546\n👑 VIP Gold Member", style: TextStyle(color: Colors.white70, fontSize: 11)),
                             ],
                           ),
                         ),
@@ -324,8 +324,24 @@ class ProfileScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
-              // App Admin / Sub-Admin Panel Button (आपके अलावा दूसरे एडमिन के लिए)
+              const SizedBox(height: 15),
+              // VIP / SVIP Badge Store Button
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1E1E2C),
+                  minimumSize: const Size(double.infinity, 50),
+                  side: const BorderSide(color: Colors.amberAccent),
+                ),
+                icon: const Icon(Icons.workspace_premium, color: Colors.amberAccent),
+                label: const Text("VIP / SVIP Badge & Frame Store", style: TextStyle(color: Colors.white, fontSize: 16)),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const VipStoreScreen()),
+                  );
+                },
+              ),
+              const SizedBox(height: 10),
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1A1A2E),
@@ -349,7 +365,53 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
-// 4. नया ऐप एडमिन और मॉडरेटर डैशबोर्ड (जो आपके अलावा दूसरे एडमिन द्वारा ऐप की निगरानी के लिए होगा)
+// VIP / SVIP Badge & Frame Store Screen
+class VipStoreScreen extends StatelessWidget {
+  const VipStoreScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final List<Map<String, String>> badges = [
+      {"name": "Dark Icon VIP Badge", "price": "999 Diamonds", "type": "Badge"},
+      {"name": "Royal SVIP Crown Frame", "price": "2999 Diamonds", "type": "Frame"},
+      {"name": "Golden Dragon Entry Effect", "price": "4999 Diamonds", "type": "Effect"},
+    ];
+
+    return Scaffold(
+      backgroundColor: const Color(0xFF121212),
+      appBar: AppBar(
+        title: const Text("VIP & SVIP Store", style: TextStyle(color: Colors.amberAccent)),
+        backgroundColor: const Color(0xFF1A1A2E),
+      ),
+      body: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: badges.length,
+        itemBuilder: (context, index) {
+          final item = badges[index];
+          return Card(
+            color: const Color(0xFF1E1E2C),
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            child: ListTile(
+              leading: const Icon(Icons.verified, color: Colors.amberAccent, size: 36),
+              title: Text(item["name"]!, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              subtitle: Text("Price: ${item["price"]}", style: const TextStyle(color: Colors.white54)),
+              trailing: ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent),
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Successfully purchased ${item["name"]}! 🎉")),
+                  );
+                },
+                child: const Text("Buy", style: TextStyle(color: Colors.white)),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
 class AppAdminDashboardScreen extends StatelessWidget {
   const AppAdminDashboardScreen({super.key});
 
@@ -397,57 +459,13 @@ class AppAdminDashboardScreen extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 25),
-          const Text("Admin Controls & Management", style: TextStyle(color: Colors.white54, fontSize: 14, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 10),
-          ListTile(
-            tileColor: const Color(0xFF1E1E2C),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            leading: const Icon(Icons.supervised_user_circle, color: Colors.pinkAccent),
-            title: const Text("Manage App Moderators / Admins", style: TextStyle(color: Colors.white)),
-            subtitle: const Text("Assign or remove sub-admin permissions", style: TextStyle(color: Colors.white54, fontSize: 11)),
-            trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white54, size: 16),
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Moderator management settings opened.")),
-              );
-            },
-          ),
-          const SizedBox(height: 10),
-          ListTile(
-            tileColor: const Color(0xFF1E1E2C),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            leading: const Icon(Icons.block, color: Colors.redAccent),
-            title: const Text("Banned Users & Reports", style: TextStyle(color: Colors.white)),
-            subtitle: const Text("Review user reports and ban list", style: TextStyle(color: Colors.white54, fontSize: 11)),
-            trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white54, size: 16),
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Banned users list opened.")),
-              );
-            },
-          ),
-          const SizedBox(height: 10),
-          ListTile(
-            tileColor: const Color(0xFF1E1E2C),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            leading: const Icon(Icons.campaign, color: Colors.amberAccent),
-            title: const Text("Global App Announcement", style: TextStyle(color: Colors.white)),
-            subtitle: const Text("Send broadcast message to all users", style: TextStyle(color: Colors.white54, fontSize: 11)),
-            trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white54, size: 16),
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Broadcast notice panel opened.")),
-              );
-            },
-          ),
         ],
       ),
     );
   }
 }
 
-// 5. 14-सीटर वॉयस चैट रूम स्क्रीन (एडमिन कंट्रोल्स के साथ)
+// 5. 14-सीटर वॉयस चैट रूम स्क्रीन (Room Theme Changer, Emoji Pack, Ludo, Carrom, Gifts के साथ)
 class VoiceChatRoomScreen extends StatefulWidget {
   const VoiceChatRoomScreen({super.key});
 
@@ -463,6 +481,9 @@ class _VoiceChatRoomScreenState extends State<VoiceChatRoomScreen> {
   ];
   final TextEditingController _msgController = TextEditingController();
 
+  // रूम थीम बदलने के लिए कलर स्टेट
+  Color _roomBgColor = const Color(0xFF241005); // डिफ़ॉल्ट रॉयल ब्राउन
+
   final List<bool> _isSeatLocked = List.generate(14, (index) => false);
   final List<bool> _isMicMuted = List.generate(14, (index) => false);
 
@@ -473,13 +494,188 @@ class _VoiceChatRoomScreenState extends State<VoiceChatRoomScreen> {
     {"name": "Super Car 🏎️", "icon": Icons.directions_car},
   ];
 
-  void _sendChatMessage() {
-    if (_msgController.text.trim().isNotEmpty) {
+  // कस्टम इमोजी पैक लिस्ट
+  final List<String> _customEmojis = ["🔥", "🍻", "🌹", "👑", "✨", "💎", "🎉", "❤️", "🚀", "🥰"];
+
+  void _sendChatMessage({String text = ""}) {
+    String msgToSend = text.isNotEmpty ? text : _msgController.text.trim();
+    if (msgToSend.isNotEmpty) {
       setState(() {
-        _chatMessages.add("KARAN: ${_msgController.text.trim()}");
-        _msgController.clear();
+        _chatMessages.add("KARAN: $msgToSend");
+        if (text.isEmpty) _msgController.clear();
       });
     }
+  }
+
+  // रूम थीम चेंजर डायलॉग
+  void _showThemeChangeDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1E1E2C),
+        title: const Text("🎨 Change Room Theme", style: TextStyle(color: Colors.amberAccent)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: const Text("Royal Brown (Default)", style: TextStyle(color: Colors.white)),
+              trailing: const CircleAvatar(backgroundColor: Color(0xFF241005), radius: 15),
+              onTap: () {
+                setState(() => _roomBgColor = const Color(0xFF241005));
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text("Dark Neon Night", style: TextStyle(color: Colors.white)),
+              trailing: const CircleAvatar(backgroundColor: Color(0xFF0D1B2A), radius: 15),
+              onTap: () {
+                setState(() => _roomBgColor = const Color(0xFF0D1B2A));
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text("Romantic Pink Velvet", style: TextStyle(color: Colors.white)),
+              trailing: const CircleAvatar(backgroundColor: Color(0xFF2C0735), radius: 15),
+              onTap: () {
+                setState(() => _roomBgColor = const Color(0xFF2C0735));
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // इमोजी पैक पिकर बॉटम शीट
+  void _showEmojiPicker() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1E1E2C),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(16),
+        height: 200,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text("😊 Custom Emoji Pack", style: TextStyle(color: Colors.amberAccent, fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 15),
+            Expanded(
+              child: GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 5,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                ),
+                itemCount: _customEmojis.length,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                      _sendChatMessage(text: _customEmojis[index]);
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white10,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Center(
+                        child: Text(_customEmojis[index], style: const TextStyle(fontSize: 24)),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showGamesMenu() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1E1E2C),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(20),
+        height: 220,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text("🎲 Room Mini-Games", style: TextStyle(color: Colors.amberAccent, fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 15),
+            ListTile(
+              leading: const Icon(Icons.casino, color: Colors.greenAccent, size: 30),
+              title: const Text("Ludo King Room", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              subtitle: const Text("Play Ludo with room members", style: TextStyle(color: Colors.white54, fontSize: 12)),
+              onTap: () {
+                Navigator.pop(context);
+                setState(() {
+                  _chatMessages.add("🎲 Ludo Game Started in Room! Join now.");
+                });
+              },
+            ),
+            const Divider(color: Colors.white24),
+            ListTile(
+              leading: const Icon(Icons.sports_baseball, color: Colors.pinkAccent, size: 30),
+              title: const Text("Carrom Board", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              subtitle: const Text("Play Carrom with friends on seats", style: TextStyle(color: Colors.white54, fontSize: 12)),
+              onTap: () {
+                Navigator.pop(context);
+                setState(() {
+                  _chatMessages.add("🎯 Carrom Board Game Started! Join now.");
+                });
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showLuckyGameDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1E1E2C),
+        title: const Text("🎰 Lucky Spin Game", style: TextStyle(color: Colors.amberAccent)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text("Spin the wheel to win 💎 Diamonds or 🪙 Rubies!", style: TextStyle(color: Colors.white70, fontSize: 13)),
+            const SizedBox(height: 20),
+            Container(
+              height: 100,
+              width: 100,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(colors: [Colors.amber, Colors.deepOrange]),
+              ),
+              child: const Center(
+                child: Icon(Icons.star, size: 50, color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Close", style: TextStyle(color: Colors.white54)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent),
+            onPressed: () {
+              Navigator.pop(context);
+              setState(() {
+                _chatMessages.add("🎰 Lucky Spin: You won 500 Diamonds! 🎉");
+              });
+            },
+            child: const Text("Spin Now", style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showAdminSeatOptions(int seatIndex) {
@@ -577,18 +773,31 @@ class _VoiceChatRoomScreenState extends State<VoiceChatRoomScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF241005),
+      backgroundColor: _roomBgColor, // डायनेमिक रूम थीम बैकग्राउंड
       appBar: AppBar(
         title: const Text("प्यारे बाबा 2 रूम (#101)", style: TextStyle(color: Colors.amberAccent)),
         backgroundColor: const Color(0xFF1A0A02),
         actions: [
+          // रूम थीम बदलने का बटन
+          IconButton(
+            icon: const Icon(Icons.palette, color: Colors.cyanAccent),
+            onPressed: _showThemeChangeDialog,
+            tooltip: "Change Room Theme",
+          ),
+          IconButton(
+            icon: const Icon(Icons.sports_esports, color: Colors.greenAccent),
+            onPressed: _showGamesMenu,
+            tooltip: "Ludo & Carrom Games",
+          ),
+          IconButton(
+            icon: const Icon(Icons.casino, color: Colors.amberAccent),
+            onPressed: _showLuckyGameDialog,
+            tooltip: "Lucky Game",
+          ),
           IconButton(
             icon: const Icon(Icons.card_giftcard, color: Colors.pinkAccent),
             onPressed: _showGiftStore,
-          ),
-          IconButton(
-            icon: const Icon(Icons.exit_to_app, color: Colors.white70),
-            onPressed: () => Navigator.pop(context),
+            tooltip: "Gifts",
           ),
         ],
       ),
@@ -710,6 +919,16 @@ class _VoiceChatRoomScreenState extends State<VoiceChatRoomScreen> {
             color: const Color(0xFF1A0A02),
             child: Row(
               children: [
+                // कस्टम इमोजी पैक खोलने का बटन
+                IconButton(
+                  icon: const Icon(Icons.emoji_emotions, color: Colors.amberAccent),
+                  onPressed: _showEmojiPicker,
+                  tooltip: "Custom Emoji Pack",
+                ),
+                IconButton(
+                  icon: const Icon(Icons.sports_esports, color: Colors.greenAccent),
+                  onPressed: _showGamesMenu,
+                ),
                 IconButton(
                   icon: const Icon(Icons.card_giftcard, color: Colors.pinkAccent),
                   onPressed: _showGiftStore,
@@ -727,7 +946,7 @@ class _VoiceChatRoomScreenState extends State<VoiceChatRoomScreen> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.send, color: Colors.amberAccent),
-                  onPressed: _sendChatMessage,
+                  onPressed: () => _sendChatMessage(),
                 ),
               ],
             ),
