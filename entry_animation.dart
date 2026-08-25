@@ -1,18 +1,9 @@
-      case 'royal':
-        return const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFFBF953F), Color(0xFFFCF6BA), Color(0xFFB38728)])); // Pure Gold Throne
-      case 'ninja':
-        return const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFF232526), Color(0xFF414345)])); // Dark Stealth Grey
-      case 'pirate':
-        return const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFF2C3E50), Color(0xFF000000)])); // Ocean Black
-      case 'wolf':
-        return const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFF373B44), Color(0xFF4286f4)])); // Midnight Blue
-      case 'diamond':
-        return const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFFE0EAFC), Color(0xFFCFDEF3)])); // Crystal Shine
-      case 'tornado':
-        return const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFF757F9A), Color(0xFFD7DDE8)])); // Storm Grey
-      case 'demon':
-        return const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFF870000), Color(0xFF190000)])); // Dark Blood Red
-      case 'falcon':
-        return const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFF3E5151), Color(0xFFDECBA4)])); // Bronze Falcon
-      case 'cosmic':
-        return const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFF0F2027), Color(0xFF203A43), Color(0xFF2C5364)])); // Space Blue
+      case 'royal': return Icons.workspace_premium_rounded;
+      case 'ninja': return Icons.sports_martial_arts_rounded;
+      case 'pirate': return Icons.sailing_rounded;
+      case 'wolf': return Icons.nightlight_round;
+      case 'diamond': return Icons.diamond_rounded;
+      case 'tornado': return Icons.air_rounded;
+      case 'demon': return Icons.local_fire_department_rounded;
+      case 'falcon': return Icons.radar_rounded;
+      case 'cosmic': return Icons.blur_circular_rounded;
