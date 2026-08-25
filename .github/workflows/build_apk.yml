@@ -2,12 +2,11 @@ name: Build Flutter APK
 
 on:
   push:
-    branches: [ "main" ] # Jab bhi aap code save karenge, yeh APK banana shuru kar dega
+    branches: [ "main", "master" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -20,17 +19,21 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.0' # Aapke project ke mutabiq stable version
+          flutter-version: '3.19.0'
           channel: 'stable'
 
       - name: Install Dependencies
-        run: flutter pub get
+        # Agar pubspec.yaml ek folder ke andar hai, toh hum yeh find command use karenge
+        run: |
+          find . -name "pubspec.yaml" -execdir flutter pub get \;
 
       - name: Build APK
-        run: flutter build apk --release
+        # Yeh command us folder mein jahan pubspec mila, wahan APK build karega
+        run: |
+          find . -name "pubspec.yaml" -execdir flutter build apk --release \;
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: "**/build/app/outputs/flutter-apk/app-release.apk"
