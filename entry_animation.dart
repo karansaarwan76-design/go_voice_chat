@@ -1,63 +1,18 @@
-              const SizedBox(height: 10),
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.lightBlueAccent),
-                onPressed: () => triggerTest("Karan (Admin)", "thor"),
-                icon: const Icon(Icons.flash_on, color: Colors.black),
-                label: const Text("Test ⚡ Thor Entry", style: TextStyle(color: Colors.black)),
-              ),
-              const SizedBox(height: 10),
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-                onPressed: () => triggerTest("Karan (Admin)", "car"),
-                icon: const Icon(Icons.directions_car, color: Colors.white),
-                label: const Text("Test 🏎️ F1 Car Entry"),
-              ),
-            ],
-          ),
-        ),
-        if (showBanner)
-          DynamicUserEntryAnnouncement(
-            username: activeUserName ?? "User",
-            isVip: true,
-            themeType: activeTheme,
-            onAnimationFinished: () {
-              setState(() {
-                showBanner = false;
-              });
-            },
-          ),
-      ],
-    );
-  }
-}
-
-// Automatic 15/30 Days VIP Expiry & Recharge Functions
-Future<void> grantVipPackage(String userId, int daysCount) async {
-  DateTime expiryDate = DateTime.now().add(Duration(days: daysCount));
-
-  await FirebaseFirestore.instance.collection('users').doc(userId).update({
-    'isVip': true,
-    'vipExpiryDate': Timestamp.fromDate(expiryDate),
-    'entryThemeActive': true,
-  });
-}
-
-Future<void> checkAndUpdateVipStatus(String userId) async {
-  DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
-
-  if (userDoc.exists) {
-    var data = userDoc.data() as Map<String, dynamic>;
-    
-    if (data['vipExpiryDate'] != null) {
-      Timestamp expiryTimestamp = data['vipExpiryDate'];
-      DateTime expiryDate = expiryTimestamp.zone == null ? expiryTimestamp.toDate() : expiryTimestamp.toDate();
-
-      if (DateTime.now().isAfter(expiryDate)) {
-        await FirebaseFirestore.instance.collection('users').doc(userId).update({
-          'isVip': false,
-          'entryThemeActive': false,
-        });
-      }
-    }
-  }
-}
+      case 'royal':
+        return const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFFBF953F), Color(0xFFFCF6BA), Color(0xFFB38728)])); // Pure Gold Throne
+      case 'ninja':
+        return const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFF232526), Color(0xFF414345)])); // Dark Stealth Grey
+      case 'pirate':
+        return const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFF2C3E50), Color(0xFF000000)])); // Ocean Black
+      case 'wolf':
+        return const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFF373B44), Color(0xFF4286f4)])); // Midnight Blue
+      case 'diamond':
+        return const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFFE0EAFC), Color(0xFFCFDEF3)])); // Crystal Shine
+      case 'tornado':
+        return const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFF757F9A), Color(0xFFD7DDE8)])); // Storm Grey
+      case 'demon':
+        return const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFF870000), Color(0xFF190000)])); // Dark Blood Red
+      case 'falcon':
+        return const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFF3E5151), Color(0xFFDECBA4)])); // Bronze Falcon
+      case 'cosmic':
+        return const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFF0F2027), Color(0xFF203A43), Color(0xFF2C5364)])); // Space Blue
