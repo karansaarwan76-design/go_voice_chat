@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 // 1. Entry Animation & Banner Widget
 class UserEntryAnnouncement extends StatefulWidget {
@@ -186,46 +187,9 @@ class _AdminEntryTestControllerState extends State<AdminEntryTestController> {
     );
   }
 }
-import 'package:cloud_firestore/cloud_firestore.dart';
 
-// User ke recharge ya ID update karne par yeh function chalega
+// 3. Automatic 15/30 Days VIP Expiry & Recharge Functions
 Future<void> grantVipPackage(String userId, int daysCount) async {
-  // Current date mein 15 ya 30 din jodna
-  DateTime expiryDate = DateTime.now().add(Duration(days: daysCount));
-
-  await FirebaseFirestore.instance.collection('users').doc(userId).update({
-    'isVip': true,
-    'vipExpiryDate': Timestamp.fromDate(expiryDate), // Expiry time save ho gaya
-    'entryThemeActive': true,
-  });
-}
-
-// App khulte hi check karne ke liye ki VIP pack expire toh nahi ho gaya
-Future<void> checkAndUpdateVipStatus(String userId) async {
-  DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
-
-  if (userDoc.exists) {
-    var data = userDoc.data() as Map<String, dynamic>;
-    
-    if (data['vipExpiryDate'] != null) {
-      Timestamp expiryTimestamp = data['vipExpiryDate'];
-      DateTime expiryDate = expiryTimestamp.toDate();
-
-      // Agar current time expiry date se zyada ho gaya hai, toh VIP hata do
-      if (DateTime.now().isAfter(expiryDate)) {
-        await FirebaseFirestore.instance.collection('users').doc(userId).update({
-          'isVip': false,
-          'entryThemeActive': false,
-        });
-      }
-    }
-  }
-}
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-// 1. Recharge ya ID update hone par 15 ya 30 din ke liye VIP activate karne ka function
-Future<void> grantVipPackage(String userId, int daysCount) async {
-  // Current date mein 15 ya 30 din aage ka time jodd rahe hain
   DateTime expiryDate = DateTime.now().add(Duration(days: daysCount));
 
   await FirebaseFirestore.instance.collection('users').doc(userId).update({
@@ -235,7 +199,6 @@ Future<void> grantVipPackage(String userId, int daysCount) async {
   });
 }
 
-// 2. App khulte hi check karne ka function ki VIP pack expire toh nahi hua
 Future<void> checkAndUpdateVipStatus(String userId) async {
   DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
 
@@ -246,7 +209,6 @@ Future<void> checkAndUpdateVipStatus(String userId) async {
       Timestamp expiryTimestamp = data['vipExpiryDate'];
       DateTime expiryDate = expiryTimestamp.toDate();
 
-      // Agar time khatam ho chuka hai, toh VIP status automatic hata do
       if (DateTime.now().isAfter(expiryDate)) {
         await FirebaseFirestore.instance.collection('users').doc(userId).update({
           'isVip': false,
