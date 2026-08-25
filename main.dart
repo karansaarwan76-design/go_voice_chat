@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart'; // असली वॉयस कॉलिंग के लिए अगोरा SDK
 import 'package:permission_handler/permission_handler.dart'; // माइक परमिशन के लिए
 
+import 'entry_animation.dart';
 // अगोरा ऐप आईडी (आप इसे अपनी अगोरा कंसोल आईडी से बदल सकते हैं)
 const String agoraAppId = "YOUR_AGORA_APP_ID";
 const String agoraChannel = "hind_voice_room_101";
@@ -28,7 +29,12 @@ class GoVoiceChatApp extends StatelessWidget {
         primarySwatch: Colors.deepPurple,
         scaffoldBackgroundColor: const Color(0xFF121212),
       ),
-      home: const AuthWrapper(),
+           home: const Scaffold(
+        backgroundColor: Color(0xFF121212),
+        body: AdminEntryTestController(),
+      ),
+),
+
     );
   }
 }
