@@ -1,39 +1,41 @@
-name: Build Flutter APK
+name: Create Android and Build APK
 
 on:
-  push:
-    branches: [ "main", "master" ]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-
-      - name: Set up Flutter
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.0'
-          channel: 'stable'
+          channel: stable
 
-      - name: Install Dependencies
-        # Agar pubspec.yaml ek folder ke andar hai, toh hum yeh find command use karenge
+      - name: Prepare Flutter project
         run: |
-          find . -name "pubspec.yaml" -execdir flutter pub get \;
+          mkdir -p lib
+          mv main.dart lib/main.dart
+          mv entry_animation.dart lib/entry_animation.dart
+          flutter create --platforms=android --project-name go_voice_chat .
+
+      - name: Add Firebase file
+        run: |
+          mkdir -p android/app
+          cp google-services.json android/app/google-services.json
+
+      - name: Get packages
+        run: flutter pub get
 
       - name: Build APK
-        # Yeh command us folder mein jahan pubspec mila, wahan APK build karega
-        run: |
-          find . -name "pubspec.yaml" -execdir flutter build apk --release \;
+        run: flutter build apk --release
 
-      -     - name: Upload APK Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-release
-        path: build/app/outputs/flutter-apk/*.apk
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: go-voice-chat-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
