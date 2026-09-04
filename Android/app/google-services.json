@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "920022635891",
+    "project_id": "govoicechat-16ff0",
+    "storage_bucket": "govoicechat-16ff0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:920022635891:android:f20baa23832bee3b036106",
+        "android_client_info": {
+          "package_name": "com.karan.govoicechat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCCvdchyXyhnU7b-58agoDw9y-msuupR9U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
